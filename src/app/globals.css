@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+/* MaintaX palette (CLAUDE.md, docs/03-UI-SPEC.md). The default Tailwind colors are cleared on purpose. */
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Sidebar */
+  --color-sb: #06142b;
+  --color-sb2: #0b1d3d;
+  --color-sbl: #1a2b4d;
+  --color-sbt: #c6d0e2;
+  --color-sbm: #7d8aa6;
+  /* The X in the logo */
+  --color-xblue: #3b82f6;
+
+  --color-bg: #f2f6fc;
+  --color-surface: #ffffff;
+  --color-surface-2: #f7f9fd;
+  --color-line: #e3e9f3;
+  --color-line-2: #edf1f7;
+  --color-ink: #0b1437;
+  --color-ink-2: #334160;
+  --color-muted: #6b7793;
+  --color-faint: #9aa5bd;
+
+  --color-blue: #1b5fe8;
+  --color-blue-600: #154fcc;
+  --color-blue-50: #edf3ff;
+  --color-blue-100: #d7e4ff;
+  --color-green: #13a37f;
+  --color-green-50: #e5f6f0;
+  --color-amber: #f2b52c;
+  --color-amber-50: #fff6e0;
+  --color-amber-text: #a86d00;
+  /* Amber icon tiles use a darker amber than the fill color. */
+  --color-amber-icon: #d39400;
+  --color-orange: #f57c20;
+  --color-orange-50: #fff0e3;
+  --color-orange-text: #d6600b;
+  --color-red: #e5383f;
+  --color-red-50: #fdecee;
+  --color-purple: #7c4ddb;
+  --color-purple-50: #f2edfc;
+  --color-gray-50: #f0f3f8;
+  --color-offline: #9aa5bd;
+  /* Toasts and the presenter badge */
+  --color-toast: #0b1437;
+  --color-toast-crit: #7f1d1d;
+
+  --radius-card: 12px;
+  --shadow-card: 0 1px 2px rgba(11, 20, 55, 0.04), 0 4px 14px rgba(11, 20, 55, 0.045);
+  --shadow-pop: 0 20px 50px rgba(11, 20, 55, 0.22);
+
+  --animate-blink: blink 1.2s infinite;
+  --animate-nw: nw 1.8s ease;
+  --animate-pop: pop 0.15s ease;
+  --animate-glow: glow 1.4s ease;
+  --animate-spin: spin 0.8s linear infinite;
+  --animate-fade: fade 0.15s ease;
+
+  @keyframes blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+  /* New or updated row: a light blue flash that fades out. */
+  @keyframes nw {
+    0% {
+      background: #e6eeff;
+    }
+    100% {
+      background: transparent;
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  /* A sensor card crossing its threshold: a red ring that fades out. */
+  @keyframes glow {
+    0% {
+      box-shadow: 0 0 0 6px rgba(229, 56, 63, 0.25);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(229, 56, 63, 0);
+    }
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  input,
+  select,
+  textarea {
+    color: var(--color-ink);
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+  }
+}

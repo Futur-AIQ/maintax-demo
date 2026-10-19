@@ -1,0 +1,35 @@
+// Run: npx tsx seed/verify.ts — asserts the seed matches docs/04-DATA-SPEC.md.
+import { buildDB } from "./build";
+const db = buildDB(Date.now());
+const H24 = 24 * 36e5, now = Date.now();
+const count = <T,>(a: T[], f: (x: T) => boolean) => a.filter(f).length;
+const checks: [string, unknown, unknown][] = [];
+const eq = (label: string, got: unknown, want: unknown) => checks.push([label, got, want]);
+eq("assets total", db.eq.length, 248);
+eq("assets MES", count(db.eq, e => e.plant === "MES"), 142);
+eq("assets RLF", count(db.eq, e => e.plant === "RLF"), 64);
+eq("assets DOH", count(db.eq, e => e.plant === "DOH"), 42);
+for (const [s, n] of [["Running", 182], ["Idle", 28], ["Maintenance", 14], ["Warning", 12], ["Critical", 8], ["Offline", 4]] as const) eq("status " + s, count(db.eq, e => e.status === s), n);
+const band = (e: typeof db.eq[number]) => e.status === "Offline" ? "Offline" : e.health >= 80 ? "Healthy" : e.health >= 65 ? "At Risk" : e.health >= 50 ? "Degraded" : "Critical";
+const mes = db.eq.filter(e => e.plant === "MES");
+for (const [b, n] of [["Healthy", 108], ["At Risk", 18], ["Degraded", 8], ["Critical", 5], ["Offline", 3]] as const) eq("MES band " + b, count(mes, e => band(e) === b), n);
+const active = db.an.filter(a => a.status === "Active" || a.status === "Investigating");
+eq("active anomalies", active.length, 11);
+eq("new anomalies", count(active, a => a.isNew), 7);
+eq("resolved anomalies 7d", count(db.an, a => a.status === "Resolved" && now - a.detectedAt < 7 * 864e5), 24);
+eq("critical anomalies", count(active, a => a.sev === "Critical"), 2);
+eq("anomalies last 24h", count(db.an, a => now - a.detectedAt < H24), 11);
+eq("unacknowledged alerts", count(db.al, a => a.state === "new"), 4);
+eq("open alerts MES", count(db.al, a => a.state !== "resolved" && a.plant === "MES"), 6);
+const due = (pl: string) => count(db.wo, w => (w.status === "Open" || w.status === "Scheduled") && w.dueAt - now <= 7 * 864e5 && w.dueAt >= now - 864e5 && w.plant === pl);
+eq("maintenance due MES", due("MES"), 12);
+eq("maintenance due RLF", due("RLF"), 6);
+eq("maintenance due DOH", due("DOH"), 4);
+eq("predicted failures MES (≤7d)", count(db.pr, p => (p.status === "Open" || p.status === "Scheduled") && p.rul <= 7 && p.plant === "MES"), 4);
+eq("users", db.users.length, 24);
+eq("models", db.models.length, 9);
+eq("sensors", db.sensors.length, 118);
+let fail = 0;
+for (const [l, g, w] of checks) { const ok = g === w; if (!ok) fail++; console.log(`${ok ? "✓" : "✗"} ${l}: ${g}${ok ? "" : " (expected " + w + ")"}`); }
+console.log(fail ? `\n${fail} check(s) failed` : "\nAll seed checks passed");
+if (fail) process.exit(1);
